@@ -74,7 +74,7 @@ const apply_missing_defaults = (account) => {
 const write_db_entry = async (username, data) => {
     try {
         await client.db(dbName).collection("users").updateOne({ username }, { $set: data }, { upsert: true });
-        console.log("Database entry written successfully.");
+        // console.log("Database entry written successfully.");
     } catch (error) {
         console.error("Error writing to database:", error);
     }
