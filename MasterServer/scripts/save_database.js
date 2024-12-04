@@ -12,9 +12,9 @@ async function save_users_collection() {
     const db = client.db("rrolf");
     const collection = db.collection("users");
     
-    const users = await collection.find({}).to_array();
+    const users = await collection.find({}).toArray();
     
-    await fs.write_file('users.json', JSON.stringify(users, null, 2));
+    await fs.writeFile('users.json', JSON.stringify(users, null, 2));
     
     console.log("Users collection saved to users.json");
   } catch (error) {
