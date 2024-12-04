@@ -1,0 +1,8 @@
+/rrolf-client
+Content-Type: application/javascript
+
+/rrolf-client.wasm
+Content-Type: application/wasm
+
+/index.html
+Content-Type: text/html; charset=UTF-8

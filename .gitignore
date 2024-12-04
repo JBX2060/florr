@@ -1,11 +1,9 @@
-build/
+Server/build/
 frontend_release_build/
 node_modules/
 .vs/
 emsdk/
 
-rrolf-client
-rrolf-client.wasm
 database.json
 logs.txt
 
@@ -13,7 +11,11 @@ logs.txt
 .rivet/
 .env
 
-
 # Added by cargo
 target/
 
+# Client. Intentional:
+Client/build/CMakeFiles/**
+Client/build/cmake_install.cmake
+Client/build/CMakeCache.txt
+Client/build/Makefile

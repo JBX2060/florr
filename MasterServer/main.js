@@ -26,7 +26,14 @@ const dbName = "rrolf";
 const PASSWORD_SALT = "aiapd8tfa3pd8tfn3pad8tap3d84t3q4pntardi4tad4otupadrtouad37q2aioymkznsxhmytcaoeyadou37wty3ou7qjoaud37tyadou37j4ywdou7wjytaousrt7jy3t";
 const SERVER_SECRET = "ad904nf6adrgnariwpanyf3qaj8unri8t9b38jwna3g34ytgdr4bwtvd4u5";
 const uri = process.env.MONGODB_URI;
-const allowedOrigins = ["https://rysteria.pro", "https://dinorr.fun", "https://rwar.fun"];
+// const allowedOrigins = [
+//   'http://167.234.221.142:8000',
+//   'http://localhost:8000',
+//   "https://rysteria.pro", 
+//   "https://dinorr.fun", 
+//   "https://rwar.fun", 
+//   "https://maxnest0x0.github.io/rysteria/"
+// ];
 
 const client = new MongoClient(uri);
 
@@ -128,16 +135,16 @@ const merge_petals = (obj1, obj2) => {
 
 const handle_CORS = (req) => {
   const origin = req.headers.get("origin");
-  if (!origin || !allowedOrigins.includes(origin)) {
-    return null;
-  }
-  return {
-    "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-  };
+  // if (origin && allowedOrigins.includes(origin)) {
+    return {
+      "Access-Control-Allow-Origin": origin,
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Allow-Credentials": "true",
+    };
+  // }
+  // return {};
 };
-
 
 const game_servers = {};
 const connected_clients = {};
@@ -233,6 +240,10 @@ const server = Bun.serve({
               await client.db(dbName).collection("users").updateOne({ username: existingDiscordUser.username }, { $set: merged_progress });
               await client.db(dbName).collection("users").deleteOne({ username: username });
             }
+            
+            await disconnect_player(existingDiscordUser.username);
+            await disconnect_player(username);
+            
             log("account_link_response", [existingDiscordUser.username, current_session.username]);
             return Response.json(
               { username: existingDiscordUser.username },
@@ -250,6 +261,9 @@ const server = Bun.serve({
                   is_game_linked: true,
                 },
               });
+              
+              await disconnect_player(username);
+              
               return Response.json(
                 { username: existingUser.username },
                 { status: 200, headers }
@@ -457,6 +471,19 @@ const server = Bun.serve({
     },
   },
 });
+
+async function disconnect_player(uuid) {
+  if (connected_clients[uuid]) {
+    const gameServer = game_servers[connected_clients[uuid].server];
+    if (gameServer && gameServer.ws) {
+      const encoder = new BinaryWriter();
+      encoder.WriteUint8(2);
+      encoder.WriteUint8(gameServer.clients.indexOf(uuid));
+      encoder.WriteStringNT(uuid);
+      gameServer.ws.send(encoder.data.subarray(0, encoder.at));
+    }
+  }
+}
 
 setInterval(() => {
   if (Object.keys(connected_clients).length > 1) {

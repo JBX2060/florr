@@ -252,10 +252,6 @@ void rr_rivet_on_log_in(char *token, char *avatar_url, char *name,
     strcpy(this->rivet_account.account_number, account_number);
     strcpy(this->rivet_account.uuid, uuid);
     this->account_linked = linked;
-
-    // Skip the password step as it's not needed after the rivet migration.
-    this->logged_in = 1;
-    rr_game_connect_socket(this);
 }
 
 static struct rr_ui_element *make_label_tooltip(char const *text, float size)

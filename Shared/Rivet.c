@@ -28,8 +28,11 @@
 
 #include <Shared/cJSON.h>
 
+#ifdef DEV_BUILD
 #define BASE_API_URL "https://api.rwar.fun/api/"
-
+#else
+#define BASE_API_URL "http://167.234.221.142:55554/api/"
+#endif
 #define RR_RIVET_CURL_PROLOGUE                                                 \
     struct curl_slist *list = 0;                                               \
     int err = 0;                                                               \
@@ -213,7 +216,8 @@ void rr_rivet_lobbies_join(void *captures, char const *lobby_id)
 #endif
 }
 
-EM_ASYNC_JS(int, check_discord, (), {
+// TODO: use defined API, for now that's just annoying
+EM_ASYNC_JS(int, check_discord, (char const *api), {
   out("checking for discord callback");
   // Check for discord callback!
     const fragment = new URLSearchParams(window.location.hash.slice(1));
@@ -222,7 +226,7 @@ EM_ASYNC_JS(int, check_discord, (), {
 
     if (access_token && token_type)
     {
-        await fetch("https://api.rwar.fun/api/account_link?username=" + window.localStorage["rivet_account_uuid"] + "&access_token=" + access_token, {
+        await fetch("https://api.rwar.fun/api/" + "account_link?username=" + window.localStorage["rivet_account_uuid"] + "&access_token=" + access_token, {
             "method": "GET",
             "headers": {
                 "Authorization": "Bearer dev_prod.eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSJ9.CLLTu7voMhCy-_b98jEaEgoQj-gzaddwQwOM5O2Q4Xz-AiIhQh8KEgoQSIFSwo_HT6GIhaljrDftExoJMTI3LjAuMC4x.Fji9GZ2J0fgNXFV2sGTIO08DuH5w98TfqjreAuAVURaFqCH37bzDxnd7GY8dgYG-jX2KV_o1Ck42l_u4V2KrBw"
@@ -252,7 +256,7 @@ void rr_rivet_identities_create_guest(void *captures)
 #ifdef EMSCRIPTEN
 // clang-format off
 
-check_discord();
+check_discord(BASE_API_URL);
 
 EM_ASM({
     out("starting normal login");
