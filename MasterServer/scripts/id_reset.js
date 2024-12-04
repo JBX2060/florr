@@ -1,6 +1,6 @@
 import { MongoClient } from "mongodb";
-const uri = process.env.MONGODB_URI;
 
+const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
 
 const old_to_new_petal_mapping = {
@@ -49,64 +49,67 @@ const old_to_new_petal_mapping = {
 };
 
 async function migrate_petal_ids() {
+    let session;
     try {
         await client.connect();
         console.log('Connected to MongoDB!');
 
-        const db = client.db("rrolf");
-        const collection = db.collection('users');
+        session = client.startSession();
+        await session.withTransaction(async () => {
+            const db = client.db("rrolf");
+            const collection = db.collection('users');
 
-        const cursor = collection.find({
-            "petals": { $exists: true }
-        });
+            const cursor = collection.find({ "petals": { $exists: true } });
 
-        let update_count = 0;
-        let processed_count = 0;
+            let update_count = 0;
+            let processed_count = 0;
 
-        await cursor.forEach(async (doc) => {
-            let modified = false;
-            const new_petals = {};
+            for await (const doc of cursor) {
+                let modified = false;
+                const new_petals = {};
 
-            // (format: "id:rarity": count)
-            for (const [key, count] of Object.entries(doc.petals)) {
-                const [old_id, rarity] = key.split(':').map(Number);
-                
-                if (old_to_new_petal_mapping[old_id] !== undefined) {
-                    const new_id = old_to_new_petal_mapping[old_id];
-                    if (new_id === -1) {
-                        const new_key = `1:${rarity}`;
-                        new_petals[new_key] = (new_petals[new_key] || 0) + count;
-                        modified = true;
-                    } else {
-                        const new_key = `${new_id}:${rarity}`;
-                        new_petals[new_key] = count;
-                        if (new_key !== key) {
+                for (const [key, count] of Object.entries(doc.petals)) {
+                    const [old_id, rarity] = key.split(':').map(Number);
+                    
+                    if (old_to_new_petal_mapping[old_id] !== undefined) {
+                        const new_id = old_to_new_petal_mapping[old_id];
+                        if (new_id === -1) {
+                            const new_key = `1:${rarity}`;
+                            new_petals[new_key] = (new_petals[new_key] || 0) + count;
                             modified = true;
+                        } else {
+                            const new_key = `${new_id}:${rarity}`;
+                            new_petals[new_key] = count;
+                            if (new_key !== key) {
+                                modified = true;
+                            }
                         }
+                    } else {
+                        new_petals[key] = count;
                     }
-                } else {
-                    new_petals[key] = count;
+                }
+
+                if (modified) {
+                    await collection.replaceOne({ _id: doc._id }, { ...doc, petals: new_petals }, { session });
+                    update_count++;
+                }
+                processed_count++;
+
+                if (processed_count % 1000 === 0) {
+                    console.log(`Processed ${processed_count} documents...`);
                 }
             }
 
-            if (modified) {
-                doc.petals = new_petals;
-                await collection.replaceOne({ _id: doc._id }, doc);
-                update_count++;
-            }
-            processed_count++;
-
-            if (processed_count % 1000 === 0) {
-                console.log(`Processed ${processed_count} documents...`);
-            }
+            console.log(`Processed ${processed_count} documents`);
+            console.log(`Updated ${update_count} documents`);
         });
-
-        console.log(`Processed ${processed_count} documents`);
-        console.log(`Updated ${update_count} documents`);
 
     } catch (err) {
         console.error('Error during migration:', err);
     } finally {
+        if (session) {
+            await session.endSession();
+        }
         await client.close();
         console.log('Migration completed');
     }
