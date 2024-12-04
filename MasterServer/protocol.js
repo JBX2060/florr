@@ -1,20 +1,6 @@
-// Copyright (C) 2024  Paul Johnson
+import { TextEncoder, TextDecoder } from "util";
 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as
-// published by the Free Software Foundation, either version 3 of the
-// License, or (at your option) any later version.
-
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-
-// You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-class BinaryWriter
-{
+class BinaryWriter {
     constructor() {
         const buf = new ArrayBuffer(8);
         this.conv_u8 = new Uint8Array(buf);
@@ -28,8 +14,7 @@ class BinaryWriter
         this.data[this.at++] = u8;
     }
     WriteVarUint(vu) {
-        while (vu > 127)
-        {
+        while (vu > 127) {
             this.WriteUint8((vu << 1) | 1);
             vu >>= 7;
         }
@@ -43,7 +28,7 @@ class BinaryWriter
     }
     WriteFloat32(f32) {
         this.conv_f32[0] = f32;
-        this.data.set(this.conv_u8.subarray(0,4), this.at);
+        this.data.set(this.conv_u8.subarray(0, 4), this.at);
         this.at += 4;
     }
     WriteFloat64(f64) {
@@ -53,8 +38,7 @@ class BinaryWriter
     }
 }
 
-class BinaryReader
-{
+class BinaryReader {
     constructor(data) {
         const buf = new ArrayBuffer(8);
         this.conv_u8 = new Uint8Array(buf);
@@ -67,10 +51,11 @@ class BinaryReader
         return this.data[this.at++];
     }
     ReadVarUint() {
-        let byte, data = 0, shift = 0;
+        let byte,
+            data = 0,
+            shift = 0;
 
-        do
-        {
+        do {
             byte = this.ReadUint8();
             data |= ((byte & 254) << shift) >> 1;
             shift += 7;
@@ -81,16 +66,16 @@ class BinaryReader
     ReadStringNT() {
         const start = this.at;
         while (this.ReadUint8());
-        return new TextDecoder().decode(this.data.subarray(start, this.at-1));
+        return new TextDecoder().decode(this.data.subarray(start, this.at - 1));
     }
     ReadFloat32() {
-        this.conv_u8.set(this.data.subarray(this.at, this.at += 4));
+        this.conv_u8.set(this.data.subarray(this.at, (this.at += 4)));
         return this.conv_f32[0];
     }
     ReadFloat64() {
-        this.conv_u8.set(this.data.subarray(this.at, this.at += 8));
+        this.conv_u8.set(this.data.subarray(this.at, (this.at += 8)));
         return this.conv_f64[0];
     }
 }
 
-module.exports = { BinaryReader, BinaryWriter };
+export { BinaryReader, BinaryWriter };

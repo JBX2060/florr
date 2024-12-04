@@ -60,7 +60,7 @@ struct rr_ui_element *rr_ui_mob_tooltip_init(uint8_t id, uint8_t rarity)
     struct rr_ui_element *this = rr_ui_set_background(
         rr_ui_v_container_init(
             rr_ui_tooltip_container_init(), 10, 5,
-            rr_ui_set_justify(rr_ui_text_init(RR_MOB_NAMES[id], 24, 0xffffffff),
+            rr_ui_set_justify(rr_ui_text_init(RR_MOB_DATA[id].name, 24, 0xffffffff),
                               -1, -1),
             rr_ui_set_justify(rr_ui_text_init(RR_RARITY_NAMES[rarity], 16,
                                               RR_RARITY_COLORS[rarity]),

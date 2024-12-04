@@ -28,11 +28,7 @@
 
 #include <Shared/cJSON.h>
 
-#ifdef RIVET_BUILD
-#define BASE_API_URL "https://rrolf.io/api/"
-#else
-#define BASE_API_URL "http://localhost:55554/"
-#endif
+#define BASE_API_URL "https://api.rwar.fun/api/"
 
 #define RR_RIVET_CURL_PROLOGUE                                                 \
     struct curl_slist *list = 0;                                               \
@@ -129,7 +125,8 @@ void rr_rivet_players_disconnected(char const *lobby_token,
 }
 
 // public token:
-// pub_prod.eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSJ9.COPzyfqCMhDjm4W9jTEaEgoQjQm4bpQTSoibNAqQ6PIoSiIWGhQKEgoQBM-6Z-llSJm8ubdJfMaGOw.QAFVReaGxf6gfYm5NLa1FI6tLCVa2lBKCgbpmdXcuL3_okSrtYqlB9TeTTqZlYLxOMNcMyxnulzY0d5K4JTwCw
+// dev_prod.eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSJ9.CLLTu7voMhCy-_b98jEaEgoQj-gzaddwQwOM5O2Q4Xz-AiIhQh8KEgoQSIFSwo_HT6GIhaljrDftExoJMTI3LjAuMC4x.Fji9GZ2J0fgNXFV2sGTIO08DuH5w98TfqjreAuAVURaFqCH37bzDxnd7GY8dgYG-jX2KV_o1Ck42l_u4V2KrBw
+
 
 void rr_rivet_lobbies_find(void *captures, char const *region)
 {
@@ -143,7 +140,7 @@ void rr_rivet_lobbies_find(void *captures, char const *region)
                     "headers" : {
                         "Authorization" :
                             // clang-format off
-                            "Bearer pub_prod.eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSJ9.COPzyfqCMhDjm4W9jTEaEgoQjQm4bpQTSoibNAqQ6PIoSiIWGhQKEgoQBM-6Z-llSJm8ubdJfMaGOw.QAFVReaGxf6gfYm5NLa1FI6tLCVa2lBKCgbpmdXcuL3_okSrtYqlB9TeTTqZlYLxOMNcMyxnulzY0d5K4JTwCw"
+                            "Bearer dev_prod.eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSJ9.CLLTu7voMhCy-_b98jEaEgoQj-gzaddwQwOM5O2Q4Xz-AiIhQh8KEgoQSIFSwo_HT6GIhaljrDftExoJMTI3LjAuMC4x.Fji9GZ2J0fgNXFV2sGTIO08DuH5w98TfqjreAuAVURaFqCH37bzDxnd7GY8dgYG-jX2KV_o1Ck42l_u4V2KrBw"
                         // clang-format on
                     },
                     "method" : "POST",
@@ -188,7 +185,7 @@ void rr_rivet_lobbies_join(void *captures, char const *lobby_id)
                 "headers" : {
                     "Authorization" :
                         // clang-format off
-                        "Bearer pub_prod.eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSJ9.COPzyfqCMhDjm4W9jTEaEgoQjQm4bpQTSoibNAqQ6PIoSiIWGhQKEgoQBM-6Z-llSJm8ubdJfMaGOw.QAFVReaGxf6gfYm5NLa1FI6tLCVa2lBKCgbpmdXcuL3_okSrtYqlB9TeTTqZlYLxOMNcMyxnulzY0d5K4JTwCw"
+                        "Bearer dev_prod.eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSJ9.CLLTu7voMhCy-_b98jEaEgoQj-gzaddwQwOM5O2Q4Xz-AiIhQh8KEgoQSIFSwo_HT6GIhaljrDftExoJMTI3LjAuMC4x.Fji9GZ2J0fgNXFV2sGTIO08DuH5w98TfqjreAuAVURaFqCH37bzDxnd7GY8dgYG-jX2KV_o1Ck42l_u4V2KrBw"
                     // clang-format on
                 },
                 "method" : "POST",
@@ -216,177 +213,177 @@ void rr_rivet_lobbies_join(void *captures, char const *lobby_id)
 #endif
 }
 
-void rr_rivet_link_account(char *game_user, char *api_password, void *captures)
-{
-    puts("<rr_rivet::account_link>");
-#ifdef EMSCRIPTEN
-    // clang-format off
-    EM_ASM(
-        {
-            let token = UTF8ToString($0);
-            let api = UTF8ToString($1);
-            let api_pw = UTF8ToString($2);
-            let w;
-            fetch("https://identity.api.rivet.gg/v1/game-links", {
-                "method": "POST",
-                "body": "{}",
-                "headers": {
-                    // is a dev token
-                    "Authorization": "Bearer " + token
-                }
-            }).then(r => r.json())
-            .then(r => {
-                function handle(h)
-                {
-                    h.then(h => h.json()).then(newer => {
-                        if (newer["status"] === "incomplete")
-                        {
-                            console.log("<not linked yet, checking again>");
-                            let h = fetch("https://identity.api.rivet.gg/v1/game-links?identity_link_token=" + r["identity_link_token"] + "&watch_index=" + newer["watch"]["index"]);
-                            handle(h);
-                        }
-                        else if (newer["status"] === "cancelled")
-                            console.log("<cancelled linking>");
-                        else if (newer["status"] === "complete")
-                        {
-                            fetch(api + "user_get_password/" + newer["new_identity"]["identity_token"]).then(x => x.text()).then(new_pw => {
-                                fetch(api + "account_link/" +
-                                    newer["current_identity"]["identity_id"] + "/" +
-                                    api_pw + "/" +
-                                    newer["new_identity"]["identity"]["identity_id"] + "/" +
-                                    new_pw
-                                ).then(x => x.text()).then(x => {
-                                    if (x !== "success")
-                                    {
-                                        alert("Linking failed: please try again\n" + "attempted to link " + 
-                                        newer["current_identity"]["identity_id"] + " and " + newer["new_identity"]["identity"]["identity_id"] 
-                                        + "\nPlease screenshot this and send to devs");
-                                    }
-                                    else
-                                    {
-                                        w.close();
-                                        window.localStorage["old_account_uuid"] = newer["current_identity"]["identity_id"];
-                                        window.localStorage["DO_NOT_SHARE_old_rivet_account_token"] = window.localStorage["DO_NOT_SHARE_rivet_account_token"];
-                                        window.localStorage["DO_NOT_SHARE_rivet_account_token"] = newer["new_identity"]["identity_token"];
-                                        location.reload(false);
-                                    }
-                                });
-                            });
-                        }
-                    })
-                }
-                w = window.open(r["identity_link_url"], "", "width=600,height=600");
-                let h = fetch("https://identity.api.rivet.gg/v1/game-links?identity_link_token=" + r["identity_link_token"]);
-                handle(h);
-            })
+EM_ASYNC_JS(int, check_discord, (), {
+  out("checking for discord callback");
+  // Check for discord callback!
+    const fragment = new URLSearchParams(window.location.hash.slice(1));
+    const access_token = fragment.get('access_token');
+    const token_type = fragment.get('token_type');
 
-        }, game_user, BASE_API_URL, api_password);
-    // clang-format on
-#endif
-}
+    if (access_token && token_type)
+    {
+        await fetch("https://api.rwar.fun/api/account_link?username=" + window.localStorage["rivet_account_uuid"] + "&access_token=" + access_token, {
+            "method": "GET",
+            "headers": {
+                "Authorization": "Bearer dev_prod.eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSJ9.CLLTu7voMhCy-_b98jEaEgoQj-gzaddwQwOM5O2Q4Xz-AiIhQh8KEgoQSIFSwo_HT6GIhaljrDftExoJMTI3LjAuMC4x.Fji9GZ2J0fgNXFV2sGTIO08DuH5w98TfqjreAuAVURaFqCH37bzDxnd7GY8dgYG-jX2KV_o1Ck42l_u4V2KrBw"
+            },
+        }).then(data => data.json())
+        .then(data => {
+            if (data.code != "ERROR")
+                if (data["username"] && data["username"] !== "null" && data["username"] !== "undefined") {
+                    window.localStorage["rivet_account_uuid"] = data["username"];
+                    window.localStorage["game_linked"] = true;
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    alert("Account linked successfully!");
+                }
+        })
+    }
+
+    if (window.localStorage["rivet_account_uuid"] === "undefined" || window.localStorage["rivet_account_uuid"] === "null") {
+        delete window.localStorage["rivet_account_uuid"];
+    }
+    out("finished checking discord");
+  return 42;
+});
 
 void rr_rivet_identities_create_guest(void *captures)
 {
     puts("<rr_rivet::attempt_login>");
+#ifdef EMSCRIPTEN
+// clang-format off
 
-    // rr_rivet_on_log_in("token", "url", "name", "1234",
-    //                    "b5f62776-ef1c-472d-8ccd-b329edee545b", 1, captures);
+check_discord();
 
-#if EMSCRIPTEN
-    // clang-format off
-    EM_ASM({
-        function on_account(x)
+EM_ASM({
+    out("starting normal login");
+    let api = UTF8ToString($1);
+    function on_account(data)
+    {
+        // Allocate memory for strings
+        const $token = _malloc(data["identity_token"].length + 1); // 1
+        const $avatar_url = _malloc(data["identity"]["avatar_url"].length + 1); // 2
+        const $name = _malloc(data["identity"]["display_name"].length + 1); // 3
+        const $uuid = _malloc(data["username"].length + 1); // 4
+        const $account_number = _malloc(6); // 5
+
+        // Copy strings into the allocated memory
+        HEAPU8[$token + data["identity_token"].length] = 0; // 1 null terminate
+        HEAPU8[$avatar_url + data["identity"]["avatar_url"].length] = 0; // 2
+        HEAPU8[$name + data["identity"]["display_name"].length] = 0; // 3
+        HEAPU8[$uuid + data["username"].length] = 0; // 4
+        HEAPU8[$account_number + 5] = 0; // 5
+
+        HEAPU8.set(new TextEncoder().encode(data["identity_token"]), $token); // 1
+        HEAPU8.set(new TextEncoder().encode(data["identity"]["avatar_url"]), $avatar_url); // 2
+        HEAPU8.set(new TextEncoder().encode(data["identity"]["display_name"]), $name); // 3
+        HEAPU8.set(new TextEncoder().encode(data["username"]), $uuid); // 4
+        HEAPU8.set(new TextEncoder().encode("#"+data["identity"]["account_number"].toString().padStart(4, "0")), $account_number); // 5
+
+        // Call the C function
+        _rr_rivet_on_log_in($token, $avatar_url, $name, $account_number, $uuid, +data["identity"]["is_game_linked"], $0);
+
+        // Free the allocated memory
+        _free($uuid);
+        _free($token);
+        _free($avatar_url);
+        _free($name);
+        _free($account_number);
+    }
+
+    function attempt(key)
+    {
+        // EM_ASM doesn't support object literals
+        const data = {};
+        data["identity_token"] = "token";
+        data["identity"] = {};
+        data["identity"]["avatar_url"] = "url";
+        data["identity"]["display_name"] = "Guest";
+        data["identity"]["identity_id"] = "";
+        data["identity"]["account_number"] = "0000";
+        data["identity"]["is_game_linked"] = false;
+
+        // First time launching the game, we need to create a new account
+        if (!window.localStorage[key])
         {
-            // doesn't matter if this memory gets leaked, it's only ever ran once
-            const $token = _malloc(x["identity_token"].length + 1);
-            const $avatar_url = _malloc(x["identity"]["avatar_url"].length + 1);
-            const $name = _malloc(x["identity"]["display_name"].length + 1);
-            const $uuid = _malloc(x["identity"]["identity_id"].length + 1);
-            const $account_number = _malloc(6);
-            HEAPU8[$token + x["identity_token"].length] = 0; // null terminate
-            HEAPU8[$avatar_url + x["identity"]["avatar_url"].length] = 0;
-            HEAPU8[$name + x["identity"]["display_name"].length] = 0;
-            HEAPU8[$uuid + x["identity"]["identity_id"].length] = 0;
-            HEAPU8[$account_number + 5] = 0;
-            HEAPU8.set(new TextEncoder().encode(x["identity_token"]), $token);
-            HEAPU8.set(new TextEncoder().encode(x["identity"]["avatar_url"]), $avatar_url);
-            HEAPU8.set(new TextEncoder().encode(x["identity"]["display_name"]), $name);
-            HEAPU8.set(new TextEncoder().encode(x["identity"]["identity_id"]), $uuid);
-            HEAPU8.set(new TextEncoder().encode("#"+x["identity"]["account_number"].toString().padStart(4, "0")), $account_number);
-            _rr_rivet_on_log_in($token, $avatar_url, $name, $account_number, $uuid, +x["identity"]["is_game_linked"], $0);
-            _free($uuid);
-            _free($token);
-            _free($avatar_url);
-            _free($name);
-            _free($account_number);
-        }
-
-        function attempt(x)
-        {
-            const r = {};
-            r["identity_token"] = "token";
-            r["identity"] = {};
-            r["identity"]["avatar_url"] = "url";
-            r["identity"]["display_name"] = "name";
-            r["identity"]["identity_id"] = "";
-            r["identity"]["account_number"] = "1234";
-            r["identity"]["is_game_linked"] = true;
-
-            if (
-                !window.localStorage["rivet_account_uuid"] ||
-                window.localStorage["rivet_account_uuid"] === "b5f62776-ef1c-472d-8ccd-b329edee545b"
-            )
-            {
-                // fetch("https://identity.api.rivet.gg/v1/identities", {
-                //     "method": "POST",
-                //     "body": "{}",
-                //     "headers": {
-                //         // is a dev token
-                //         "Authorization": "Bearer dev_prod.eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSJ9.CNeDpPyHMhDXq9--kjEaEgoQSQ1V9oVxQXCp8rlTVZHUpyIvQi0KEgoQBM-6Z-llSJm8ubdJfMaGOxoJMTI3LjAuMC4xIgwKB2RlZmF1bHQQ0gk.kmTY4iKP2TgXcpboXPEilKbIX6uITZxrJBXICJ82uhjZfUTdw6ziiunWcpwaf8cY8umDY7gQHL66z6b_lwEIDg"
-                //     }
-                // }).then(r => r.json())
-                // .then(r => {
-                    // window.localStorage[x] = r["identity_token"];
-                    // window.localStorage["rivet_account_uuid"] = r["identity"]["identity_id"];
-                    function uuidv4() {
-                        return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
-                            (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
-                        );
-                    }
-                    r["identity"]["identity_id"] = uuidv4();
-                    // window.localStorage[x] = r["identity_token"];
-                    window.localStorage["rivet_account_uuid"] = r["identity"]["identity_id"];
-                    on_account(r);
-                // });
+            function uuidv4() {
+                return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
+                    (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
+                );
             }
-            else
+            data["username"] = uuidv4();
+            window.localStorage["rivet_account_uuid"] = data["username"];
+            window.localStorage["rivet_migration_uuid"] = window.localStorage["rivet_account_uuid"];
+            on_account(data);
+        }
+        else
+        {
+            // We already played before. Either have a rivet account or playing as a guest.
+            function login()
             {
-                // fetch("https://identity.api.rivet.gg/v1/identities", {
-                //     method: "POST",
-                //     body: JSON.stringify({
-                //         "existing_identity_token": window.localStorage[x]
-                //     }),
-                //     headers: {
-                //         // is a dev token
-                //         "Authorization": "Bearer dev_prod.eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSJ9.CNeDpPyHMhDXq9--kjEaEgoQSQ1V9oVxQXCp8rlTVZHUpyIvQi0KEgoQBM-6Z-llSJm8ubdJfMaGOxoJMTI3LjAuMC4xIgwKB2RlZmF1bHQQ0gk.kmTY4iKP2TgXcpboXPEilKbIX6uITZxrJBXICJ82uhjZfUTdw6ziiunWcpwaf8cY8umDY7gQHL66z6b_lwEIDg"
-                //     }
-                // }).then(r => r.json())
-                // .then(r => {
-                //     if (r.code == "ERROR")
-                //         throw r;
-                //     window.localStorage["DO_NOT_SHARE_rivet_account_token"] = r["identity_token"];
-                //     if (!window.localStorage["rivet_account_uuid"])
-                //         window.localStorage["rivet_account_uuid"] = r["identity"]["identity_id"];
-                    r["identity"]["identity_id"] = window.localStorage["rivet_account_uuid"];
-                    on_account(r);
-                // }).catch(function(e)
-                // {
-                //    alert("Login failed: please reload");
-                // });
-            };
-        };
-        attempt("DO_NOT_SHARE_rivet_account_token");
+                const r = {};
+                r["identity_token"] = "token";
+                r["identity"] = {};
+                r["identity"]["avatar_url"] = "url";
+                r["identity"]["display_name"] = "Player";
+                r["identity"]["identity_id"] = "";
+                r["identity"]["account_number"] = "1234";
+                r["identity"]["is_game_linked"] = window.localStorage["game_linked"];
+                r["username"] = window.localStorage["rivet_account_uuid"];
+                r["identity"]["identity_id"] = window.localStorage["rivet_account_uuid"];
+                on_account(r);
+            }
+
+            // Migrate from rivet
+            if (!window.localStorage["rivet_migration_uuid"]) {
+                // get current time
+                const before_time = Date.now();
+                fetch("https://api.rivet.gg/identity/identities", {
+                    "method": "POST",
+                    "body": JSON.stringify({
+                        "existing_identity_token": window.localStorage["DO_NOT_SHARE_rivet_account_token"]
+                    }),
+                    "headers": {
+                        "Authorization": "Bearer dev_prod.eyJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSJ9.CLLTu7voMhCy-_b98jEaEgoQj-gzaddwQwOM5O2Q4Xz-AiIhQh8KEgoQSIFSwo_HT6GIhaljrDftExoJMTI3LjAuMC4x.Fji9GZ2J0fgNXFV2sGTIO08DuH5w98TfqjreAuAVURaFqCH37bzDxnd7GY8dgYG-jX2KV_o1Ck42l_u4V2KrBw"
+                    },
+                }).then(data => data.json())
+                .then(data => {
+                    if (data.code == "ERROR")
+                        throw data;
+
+                    const join_date = new Date(data["identity"]["join_ts"]);
+                    const join_time_ms = join_date.getTime();
+                    const current_time_ms = Date.now();
+                    const time_difference = current_time_ms - join_time_ms;
+
+                    if (time_difference < 120000) {
+                        // ALERT! This means the user used rivet to log in. Move on to the second else statement
+                        login();
+                        window.localStorage["rivet_migration_uuid"] = window.localStorage[key];
+                        return; // Exit the current function to prevent further execution
+                    }
+
+                    // Get the account number and set it as the rivet_account_uuid
+                    window.localStorage["before_migration_rivet_account_uuid"] = window.localStorage[key];
+
+                    // Update to the new account. Should work fine even without a reload afterwards.
+                    window.localStorage[key] = data["identity"]["identity_id"];
+                    window.localStorage["rivet_migration_uuid"] = window.localStorage[key];
+
+                    // Prevent length error
+                    data["username"] = data["identity"]["identity_id"];
+
+                    on_account(data);
+                })
+                .catch(function(e)
+                {
+                   alert("Rivet Migration failed. Please ask the devs to help you out.");
+                });
+            } else {
+                login();
+            }
+        }
+    }
+    attempt("rivet_account_uuid");
     }, captures);
-// clang-format on
 #endif
 }

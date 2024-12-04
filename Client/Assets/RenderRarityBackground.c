@@ -32,7 +32,7 @@ void rr_renderer_draw_background(struct rr_renderer *renderer, uint8_t rarity,
         if (rarity >= rr_rarity_id_max)
             return;
         rr_renderer_begin_path(renderer);
-        rr_renderer_round_rect(renderer, -27.0f, -27.0f, 54.0f, 54.0f, 3.0f);
+        rr_renderer_round_rect(renderer, -27.0f, -27.0f, 54.0f, 54.0f, 1.5f);
         rr_renderer_clip(renderer);
     }
     else
@@ -45,7 +45,7 @@ void rr_renderer_draw_background(struct rr_renderer *renderer, uint8_t rarity,
             rr_renderer_set_line_width(renderer, 6.0f);
             rr_renderer_begin_path(renderer);
             rr_renderer_round_rect(renderer, -30.0f, -30.0f, 60.0f, 60.0f,
-                                   6.0f);
+                                   3.0f);
             rr_renderer_fill(renderer);
             rr_renderer_stroke(renderer);
             renderer->state.filter.amount = 0.0f;
@@ -59,7 +59,7 @@ void rr_renderer_draw_background(struct rr_renderer *renderer, uint8_t rarity,
             rr_renderer_set_line_width(renderer, 6.0f);
             rr_renderer_begin_path(renderer);
             rr_renderer_round_rect(renderer, -30.0f, -30.0f, 60.0f, 60.0f,
-                                   6.0f);
+                                   3.0f);
             rr_renderer_fill(renderer);
             rr_renderer_stroke(renderer);
             renderer->state.filter.amount = 0.0f;
@@ -70,7 +70,7 @@ void rr_renderer_draw_background(struct rr_renderer *renderer, uint8_t rarity,
             rr_renderer_set_fill(renderer, 0x40ffffff);
             rr_renderer_begin_path(renderer);
             rr_renderer_round_rect(renderer, -32.0f, -32.0f, 64.0f, 64.0f,
-                                   6.0f);
+                                   3.0f);
             rr_renderer_fill(renderer);
             return;
         }
@@ -78,12 +78,12 @@ void rr_renderer_draw_background(struct rr_renderer *renderer, uint8_t rarity,
         rr_renderer_set_fill(renderer, RR_RARITY_COLORS[rarity]);
         rr_renderer_set_line_width(renderer, 6.0f);
         rr_renderer_begin_path(renderer);
-        rr_renderer_round_rect(renderer, -33.0f, -33.0f, 66.0f, 66.0f, 6.0f);
+        rr_renderer_round_rect(renderer, -33.0f, -33.0f, 66.0f, 66.0f, 3.0f);
         rr_renderer_fill(renderer);
         renderer->state.filter.amount = 0.0f;
         rr_renderer_set_fill(renderer, RR_RARITY_COLORS[rarity]);
         rr_renderer_begin_path(renderer);
-        rr_renderer_round_rect(renderer, -27.0f, -27.0f, 54.0f, 54.0f, 3.0f);
+        rr_renderer_round_rect(renderer, -27.0f, -27.0f, 54.0f, 54.0f, 1.5f);
         rr_renderer_fill(renderer);
         rr_renderer_clip(renderer);
     }

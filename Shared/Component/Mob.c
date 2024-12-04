@@ -72,7 +72,7 @@ void rr_component_mob_free(struct rr_component_mob *this,
         }
         return;
     }
-    this->zone->grid_points -= RR_MOB_DIFFICULTY_COEFFICIENTS[this->id];
+    this->zone->grid_points -= RR_MOB_DATA[this->id].danger;
     // put it here please
     struct rr_component_physical *physical =
         rr_simulation_get_physical(simulation, this->parent_id);

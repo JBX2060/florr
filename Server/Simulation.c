@@ -216,7 +216,7 @@ static void spawn_mob(struct rr_simulation *this, uint32_t grid_x,
         EntityIdx mob_id = rr_simulation_alloc_mob(
             this, 1, pos.x, pos.y, id, rarity, rr_simulation_team_id_mobs);
         rr_simulation_get_mob(this, mob_id)->zone = grid;
-        grid->grid_points += RR_MOB_DIFFICULTY_COEFFICIENTS[id];
+        grid->grid_points += RR_MOB_DATA[id].danger;
         grid->spawn_timer = 0;
         break;
     }

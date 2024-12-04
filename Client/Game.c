@@ -253,8 +253,9 @@ void rr_rivet_on_log_in(char *token, char *avatar_url, char *name,
     strcpy(this->rivet_account.uuid, uuid);
     this->account_linked = linked;
 
-    // rr_api_get_password(this->rivet_account.token, this);
-    rr_api_on_get_password("5d68a8ec6cbf3997a641803260390362d59681bc7524ef3a3fd67afddaba0ba96d1196d30834aa25aa1440cadffb4c87af6495e613c535b793cc1c71aa8c4d04", this);
+    // Skip the password step as it's not needed after the rivet migration.
+    this->logged_in = 1;
+    rr_game_connect_socket(this);
 }
 
 static struct rr_ui_element *make_label_tooltip(char const *text, float size)
@@ -399,6 +400,13 @@ void rr_game_init(struct rr_game *this)
     this->window->resizeable = 0;
     this->window->on_event = window_on_event;
 
+    this->inventory[rr_petal_id_basic][rr_rarity_id_common] = 5;
+
+    for (int i = 0; i < 5; ++i) {
+        this->cache.loadout[i].id = 1;
+        this->cache.loadout[i].rarity = 0;
+    }
+
     strcpy(this->rivet_account.name, "loading");
     strcpy(this->rivet_account.avatar_url, "");
     strcpy(this->rivet_account.token, "");
@@ -430,7 +438,7 @@ void rr_game_init(struct rr_game *this)
         rr_ui_set_background(
             rr_ui_pad(
                 rr_ui_set_justify(
-                    rr_ui_h_container_init(rr_ui_container_init(), 10, 10, 
+                    rr_ui_h_container_init(rr_ui_container_init(), 10, 10,
                     rr_ui_minimap_init(this),
                     NULL
                 )
@@ -462,7 +470,11 @@ void rr_game_init(struct rr_game *this)
                 rr_ui_v_container_init(rr_ui_container_init(), 10, 20,
                     rr_ui_v_container_init(rr_ui_container_init(), 0, 10,
                         rr_ui_v_container_init(rr_ui_container_init(), 0, 10,
-                            rr_ui_text_init("Rysteria", 96, 0xffffffff),
+                            rr_ui_text_init(
+                                    this->selected_biome == 0 ? "Hell Creek" :
+                                    this->selected_biome == 1 ? "Garden" :
+                                    this->selected_biome == 2 ? "Ocean" : "Unknown",
+                                    96, 0xffffffff),
                             rr_ui_h_container_init(
                                 rr_ui_container_init(), 0, 20,
                                 rr_ui_link_toggle(
@@ -641,8 +653,8 @@ void rr_game_init(struct rr_game *this)
     rr_ui_container_add_element(this->window, rr_ui_container_add_element(rr_ui_mob_container_init(), close_menu_button_init(25))->container);
     rr_ui_container_add_element(this->window, rr_ui_container_add_element(rr_ui_crafting_container_init(this), close_menu_button_init(25))->container);
     rr_ui_container_add_element(this->window, rr_ui_container_add_element(rr_ui_settings_container_init(this), close_menu_button_init(25))->container);
-    rr_ui_container_add_element(this->window, rr_ui_container_add_element(rr_ui_account_container_init(this), close_menu_button_init(25))->container);
     rr_ui_container_add_element(this->window, rr_ui_container_add_element(rr_ui_dev_panel_container_init(this), close_menu_button_init(25))->container);
+    rr_ui_container_add_element(this->window, rr_ui_container_add_element(rr_ui_account_container_init(this), close_menu_button_init(25))->container);
 
     this->link_account_tooltip = rr_ui_container_add_element(
         this->window,
@@ -696,7 +708,7 @@ void rr_game_init(struct rr_game *this)
 
     this->link_reminder_tooltip = rr_ui_container_add_element(
         this->window,
-        make_label_tooltip("Login to save progess across devices", 16)
+        make_label_tooltip("New: Discord login", 16)
     );
 
     this->leave_squad_tooltip = rr_ui_container_add_element(
@@ -1818,10 +1830,13 @@ void rr_game_connect_socket(struct rr_game *this)
 #else
     rr_websocket_init(&this->socket);
     this->socket.user_data = this;
-    char url[128];
-    rr_dom_get_socket_url(url);
-    rr_websocket_connect_to(&this->socket, url);
-    // rr_websocket_connect_to(&this->socket, "45.79.197.197", 1234, 0);
+    // char url[128];
+    // rr_dom_get_socket_url(url);
+    #ifdef DEV_BUILD
+        rr_websocket_connect_to(&this->socket, "ws://167.234.221.142:2053/");
+    #else
+        rr_websocket_connect_to(&this->socket, "wss://us1.dinorr.fun/");
+    #endif
 #endif
 }
 

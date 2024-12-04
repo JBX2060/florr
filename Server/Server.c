@@ -337,14 +337,9 @@ static int handle_lws_event(struct rr_server *this, struct lws *ws,
                              sizeof "api ws not ready" - 1);
             return -1;
         }
-        char xff[100];
-        if (lws_hdr_copy(ws, xff, 100, WSI_TOKEN_X_FORWARDED_FOR) <= 0)
-        {
-            lws_close_reason(ws, LWS_CLOSE_STATUS_GOINGAWAY,
-                             (uint8_t *)"could not get xff header",
-                             sizeof "could not get xff header" - 1);
-            return -1;
-        }
+        char ip[16];
+        const char *r = lws_get_peer_simple(ws, ip, 16);
+
         for (uint64_t i = 0; i < RR_MAX_CLIENT_COUNT; i++)
             if (!rr_bitset_get_bit(this->clients_in_use, i))
             {
@@ -353,7 +348,7 @@ static int handle_lws_event(struct rr_server *this, struct lws *ws,
                 this->clients[i].server = this;
                 this->clients[i].socket_handle = ws;
                 this->clients[i].in_use = 1;
-                strcpy(this->clients[i].ip_address, xff);
+                strcpy(this->clients[i].ip_address, ip);
                 lws_set_opaque_user_data(ws, this->clients + i);
                 // send encryption key
                 struct proto_bug encryption_key_encoder;
@@ -501,10 +496,10 @@ static int handle_lws_event(struct rr_server *this, struct lws *ws,
             proto_bug_read_string(&encoder, client->rivet_account.uuid, 100,
                                   "rivet uuid");
 
-#ifndef SANDBOX
-            if (rr_get_hash(rr_get_hash(proto_bug_read_varuint(&encoder, "dev_flag"))) == 538077234822853942)
-#endif
+            char *dev_uuid = getenv("DEV_UUID");
+            if (dev_uuid && strcmp(client->rivet_account.uuid, dev_uuid) == 0) {
                 client->dev = 1;
+            }
 
             for (uint32_t j = 0; j < RR_MAX_CLIENT_COUNT; ++j)
             {
@@ -1465,7 +1460,7 @@ void rr_server_run(struct rr_server *this)
                                       MESSAGE_BUFFER_SIZE, 0, NULL, 0},
                                      {0}};
 
-        info.port = 1234;
+        info.port = 2053;
         info.user = this;
         info.pt_serv_buf_size = MESSAGE_BUFFER_SIZE;
 

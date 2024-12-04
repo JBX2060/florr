@@ -36,10 +36,10 @@ static uint8_t account_container_should_show(struct rr_ui_element *this,
 static uint8_t account_button_should_show(struct rr_ui_element *this,
                                           struct rr_game *game)
 {
-    if (game->account_linked == 0 && !game->simulation_ready)
-    {
-        rr_ui_render_tooltip_right(this, game->link_reminder_tooltip, game);
-    }
+    // if (game->account_linked == 0 && !game->simulation_ready)
+    // {
+    //     rr_ui_render_tooltip_right(this, game->link_reminder_tooltip, game);
+    // }
     return !game->simulation_ready;
 }
 
@@ -122,105 +122,21 @@ struct rr_ui_element *rr_ui_account_toggle_button_init()
     return this;
 }
 
-static void render_link(struct rr_ui_element *this, struct rr_game *game)
-{
-    struct rr_renderer *renderer = game->renderer;
-    if (rr_ui_mouse_over(this, game))
-        rr_renderer_add_color_filter(renderer, 0xff000000, 0.2);
-    rr_renderer_scale(renderer, renderer->scale);
-    rr_renderer_set_fill(renderer, 0x80888888);
-    renderer->state.filter.amount += 0.2;
-    rr_renderer_begin_path(renderer);
-    rr_renderer_round_rect(renderer, -this->abs_width / 2,
-                           -this->abs_height / 2, this->abs_width,
-                           this->abs_height, 6);
-    rr_renderer_fill(renderer);
-    rr_renderer_scale(renderer, 0.85);
-    rr_renderer_set_fill(renderer, 0xffffffff);
-    rr_renderer_begin_path(renderer);
-    rr_renderer_move_to(renderer, 14.60, -10.21);
-    rr_renderer_line_to(renderer, 10.52, -14.24);
-    rr_renderer_bezier_curve_to(renderer, 8.71, -16.02, 5.78, -16.03, 3.97,
-                                -14.26);
-    rr_renderer_line_to(renderer, -0.55, -9.85);
-    rr_renderer_bezier_curve_to(renderer, -2.36, -8.08, -2.37, -5.20, -0.57,
-                                -3.42);
-    rr_renderer_line_to(renderer, 2.02, -5.91);
-    rr_renderer_bezier_curve_to(renderer, 1.75, -6.70, 2.08, -7.60, 2.72,
-                                -8.23);
-    rr_renderer_line_to(renderer, 5.60, -11.04);
-    rr_renderer_bezier_curve_to(renderer, 6.51, -11.92, 7.97, -11.92, 8.87,
-                                -11.03);
-    rr_renderer_line_to(renderer, 11.32, -8.61);
-    rr_renderer_bezier_curve_to(renderer, 12.22, -7.72, 12.22, -6.28, 11.31,
-                                -5.39);
-    rr_renderer_line_to(renderer, 8.43, -2.59);
-    rr_renderer_bezier_curve_to(renderer, 7.82, -1.99, 6.82, -1.67, 6.05,
-                                -1.87);
-    rr_renderer_line_to(renderer, 3.51, 0.61);
-    rr_renderer_bezier_curve_to(renderer, 5.32, 2.39, 8.24, 2.40, 10.06, 0.63);
-    rr_renderer_line_to(renderer, 14.58, -3.78);
-    rr_renderer_bezier_curve_to(renderer, 16.39, -5.55, 16.40, -8.43, 14.60,
-                                -10.21);
-    rr_renderer_move_to(renderer, -1.97, 5.95);
-    rr_renderer_bezier_curve_to(renderer, -1.76, 6.72, -2.10, 7.72, -2.72,
-                                8.33);
-    rr_renderer_line_to(renderer, -5.41, 10.96);
-    rr_renderer_bezier_curve_to(renderer, -6.33, 11.86, -7.83, 11.85, -8.74,
-                                10.94);
-    rr_renderer_line_to(renderer, -11.24, 8.48);
-    rr_renderer_bezier_curve_to(renderer, -12.16, 7.58, -12.15, 6.10, -11.23,
-                                5.21);
-    rr_renderer_line_to(renderer, -8.54, 2.58);
-    rr_renderer_bezier_curve_to(renderer, -7.88, 1.94, -6.94, 1.62, -6.12,
-                                1.89);
-    rr_renderer_line_to(renderer, -3.52, -0.68);
-    rr_renderer_bezier_curve_to(renderer, -5.36, -2.49, -8.35, -2.50, -10.19,
-                                -0.70);
-    rr_renderer_line_to(renderer, -14.56, 3.56);
-    rr_renderer_bezier_curve_to(renderer, -16.40, 5.37, -16.41, 8.30, -14.58,
-                                10.11);
-    rr_renderer_line_to(renderer, -10.42, 14.22);
-    rr_renderer_bezier_curve_to(renderer, -8.59, 16.03, -5.60, 16.04, -3.75,
-                                14.24);
-    rr_renderer_line_to(renderer, 0.61, 9.98);
-    rr_renderer_bezier_curve_to(renderer, 2.45, 8.17, 2.46, 5.24, 0.63, 3.43);
-    rr_renderer_line_to(renderer, -1.97, 5.95);
-    rr_renderer_move_to(renderer, -4.81, 4.78);
-    rr_renderer_bezier_curve_to(renderer, -4.20, 5.39, -3.20, 5.40, -2.57,
-                                4.78);
-    rr_renderer_line_to(renderer, 4.88, -2.63);
-    rr_renderer_bezier_curve_to(renderer, 5.50, -3.25, 5.51, -4.25, 4.89,
-                                -4.87);
-    rr_renderer_bezier_curve_to(renderer, 4.28, -5.48, 3.28, -5.48, 2.66,
-                                -4.87);
-    rr_renderer_line_to(renderer, -4.80, 2.54);
-    rr_renderer_bezier_curve_to(renderer, -5.42, 3.16, -5.42, 4.16, -4.81,
-                                4.78);
-    rr_renderer_fill(renderer);
-}
-
 static void link_rivet_account(struct rr_ui_element *this, struct rr_game *game)
 {
     if (game->input_data->mouse_buttons_up_this_tick & 1)
-    { // TODO: make it display a loading status and disable the click
-        // funcitonality
-        rr_rivet_link_account(game->rivet_account.token,
-                              game->rivet_account.api_password, 0);
+    {
+        // Redirect to Discord oauth
+        EM_ASM({
+            var currentUrl = window.location.href;
+            var redirectUri = new URL(currentUrl).origin + new URL(currentUrl).pathname;
+            window.location.href = "https://discord.com/oauth2/authorize?client_id=1310849698000539790&response_type=token&redirect_uri=" + encodeURIComponent(redirectUri) + "&scope=identify+guilds.join";
+        });
     }
     else if (!(game->input_data->mouse_buttons & 1))
         rr_ui_render_tooltip_right(this, game->link_account_tooltip, game);
 }
 
-static struct rr_ui_element *link_account_button_init(struct rr_game *game)
-{
-    struct rr_ui_element *this = rr_ui_element_init();
-    this->width = this->abs_width = this->height = this->abs_height = 35;
-    this->on_render = render_link;
-    this->on_event = link_rivet_account;
-
-    return this;
-}
 
 static uint8_t linked_account(struct rr_ui_element *this, struct rr_game *game)
 {
@@ -231,13 +147,17 @@ static void copy_uuid(struct rr_ui_element *this, struct rr_game *game)
 {
     if (game->input_data->mouse_buttons_up_this_tick & 1)
         rr_copy_string(game->rivet_account.uuid);
-    game->cursor = rr_game_cursor_pointer;
 }
 
 // clang-format off
 struct rr_ui_element *rr_ui_account_container_init(struct rr_game *game)
 {
     struct rr_ui_element *uuid = rr_ui_text_init(game->rivet_account.uuid, 15, 0xffffffff);
+    struct rr_ui_element *link_account =
+        rr_ui_labeled_button_init("Login With Discord", 36, NULL);
+    rr_ui_set_background(link_account, 0xff45a8a8);
+    link_account->on_event = link_rivet_account;
+
     uuid->on_event = copy_uuid;
     struct rr_ui_element *this = rr_ui_pad(
         rr_ui_set_background(
@@ -247,27 +167,21 @@ struct rr_ui_element *rr_ui_account_container_init(struct rr_game *game)
                         rr_ui_container_init(), 10, 5,
                         rr_ui_text_init("Account", 24, 0xffffffff),
                         rr_ui_static_space_init(10),
-                        rr_ui_h_container_init(rr_ui_container_init(), 0, 0, 
-                            rr_ui_text_init("Account Name: ", 15, 0xffffffff),
-                            rr_ui_text_init(game->rivet_account.name, 15, 0xffffffff),
-                            rr_ui_text_init(game->rivet_account.account_number, 15, 0xffcccccc),
+                        link_account,
+                        rr_ui_static_space_init(10),
+                        rr_ui_h_container_init(rr_ui_container_init(), 0, 0,
+                            rr_ui_text_init("Account Name: ", 20, 0xffffffff),
+                            rr_ui_text_init(game->rivet_account.name, 20, 0xffffffff),
                             NULL
                         ),
-                        uuid,
                         rr_ui_static_space_init(10),
-                        rr_ui_choose_element_init(
-                            rr_ui_flex_container_init(
-                                rr_ui_v_container_init(rr_ui_container_init(), 0, 5, 
-                                    rr_ui_text_init("Progress on guest accounts", 15, 0xffffffff),
-                                    rr_ui_text_init("will be lost after 4 months.", 15, 0xffffffff),
-                                    NULL
-                                ),
-                                link_account_button_init(game),
-                                10
-                            ),
-                            rr_ui_text_init("Logged in", 20, 0xffffffff),
-                            linked_account
+
+                        rr_ui_v_container_init(rr_ui_container_init(), 0, 5,
+                            rr_ui_text_init("You can link your account to", 15, 0xffffffff),
+                            rr_ui_text_init("keep your progress across devices.", 15, 0xffffffff),
+                            NULL
                         ),
+
                         NULL
                     ), -1, -1
                 ), 50

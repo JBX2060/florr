@@ -29,6 +29,7 @@ set(SRCS
     Assets/Mob/Beehive.c
     Assets/Mob/Dakotaraptor.c
     Assets/Mob/Dragonfly.c
+    Assets/Mob/Lanternfly.c
     Assets/Mob/Edmontosaurus.c
     Assets/Mob/Honeybee.c
     Assets/Mob/Hornet.c
@@ -43,6 +44,14 @@ set(SRCS
     Assets/Mob/Fern.c
     Assets/Mob/Meteor.c
     Assets/Mob/Tree.c
+    Assets/Mob/Pectinodon.c
+
+    Assets/Mob/Kelp.c
+    Assets/Mob/Seagull.c
+    Assets/Mob/KingMackarel.c
+    Assets/Mob/SeaSnail.c
+    Assets/Mob/QueenAnt.c
+
     Assets/Tile/Garden.c
     Assets/Tile/HellCreek.c
     Assets/Tile/Ocean.c
@@ -85,6 +94,7 @@ set(SRCS
     Ui/TitleScreen/BiomeButton.c
     Ui/TitleScreen/Crafting.c
     Ui/TitleScreen/DevSquadPanel.c
+    # Ui/TitleScreen/Changelog.c
     Ui/TitleScreen/Discord.c
     Ui/TitleScreen/Github.c
     Ui/TitleScreen/Inventory.c
@@ -148,7 +158,7 @@ endif()
 
 if (WASM_BUILD)
     set(CMAKE_C_COMPILER "emcc")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --closure=1 -DWASM_BUILD -s INITIAL_MEMORY=33554432 -s NO_EXIT_RUNTIME=1 -s EXPORTED_FUNCTIONS=_malloc,_free,_rr_rivet_on_log_in,_rr_rivet_lobby_on_find,_rr_renderer_main_loop,_main,_rr_key_event,_rr_mouse_event,_rr_touch_event,_rr_wheel_event,_rr_paste_event,_rr_context_event,_rr_focus_event,_rr_on_socket_event_emscripten,_rr_api_on_get_password")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --closure=1 -DWASM_BUILD -s ASYNCIFY -s INITIAL_MEMORY=33554432 -s NO_EXIT_RUNTIME=1 -s EXPORTED_FUNCTIONS=_malloc,_free,_rr_rivet_on_log_in,_rr_rivet_lobby_on_find,_rr_renderer_main_loop,_main,_rr_key_event,_rr_mouse_event,_rr_touch_event,_rr_wheel_event,_rr_paste_event,_rr_context_event,_rr_focus_event,_rr_on_socket_event_emscripten,_rr_api_on_get_password")
     set(SRCS ${SRCS} Renderer/Wasm.c)
 else()
     set(SRCS ${SRCS} Renderer/Native.cc)
@@ -158,10 +168,15 @@ if(RIVET_BUILD)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DRIVET_BUILD")
 endif()
 
+if (DEV_BUILD)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DDEV_BUILD")
+endif()
+
 add_executable(rrolf-client ${SRCS})
 
 if(NOT WASM_BUILD)
     target_link_libraries(rrolf-client websockets cairo curl)
 endif()
 
+target_link_libraries(rrolf-client m)
 target_link_libraries(rrolf-client m)

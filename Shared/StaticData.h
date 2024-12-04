@@ -129,12 +129,16 @@ enum rr_petal_id
     rr_petal_id_wax,       // 28
     rr_petal_id_sand,      // 29
     rr_petal_id_mint,      // 30
+    rr_petal_id_rice,      // 31
+    rr_petal_id_stick,     // 32
+    rr_petal_id_missile,   // 33
 
-    rr_petal_id_max,       // 31
+    rr_petal_id_max,       // 34
 };
 
 enum rr_mob_id
 {
+    // Hell Creek
     rr_mob_id_triceratops,        // 0
     rr_mob_id_trex,               // 1
     rr_mob_id_fern,               // 2
@@ -147,17 +151,45 @@ enum rr_mob_id
     rr_mob_id_meteor,             // 9
     rr_mob_id_quetzalcoatlus,     // 10
     rr_mob_id_edmontosaurus,      // 11
+    rr_mob_id_pectinodon,         // 12
 
-    rr_mob_id_ant,                // 12
-    rr_mob_id_hornet,             // 13
-    rr_mob_id_dragonfly,          // 14
-    rr_mob_id_honeybee,           // 15
-    rr_mob_id_beehive,            // 16
-    rr_mob_id_spider,             // 17
-    rr_mob_id_house_centipede,    // 18
-    rr_mob_id_lanternfly,         // 19
+    // Garden
+    rr_mob_id_ant,                // 13
+    rr_mob_id_hornet,             // 14
+    rr_mob_id_dragonfly,          // 15
+    rr_mob_id_honeybee,           // 16
+    rr_mob_id_beehive,            // 17
+    rr_mob_id_spider,             // 18
+    rr_mob_id_house_centipede,    // 19
 
-    rr_mob_id_max,                // 20
+    // Florr Garden
+    rr_mob_id_baby_ant,           // 20
+    rr_mob_id_worker_ant,         // 21
+    rr_mob_id_queen_ant,          // 22
+    rr_mob_id_ladybug,            // 23
+    rr_mob_id_rock,               // 24
+
+    // Ocean
+    rr_mob_id_kelp,               // 25
+    rr_mob_id_seagull,            // 26
+    rr_mob_id_kingmackarel,       // 27
+    rr_mob_id_seasnail,           // 28
+
+    // Florr Ocean
+    rr_mob_id_jellyfish,          // 29
+    rr_mob_id_shell,              // 30
+    rr_mob_id_crab,               // 31
+    rr_mob_id_sponge,             // 32
+    rr_mob_id_starfish,           // 33
+    rr_mob_id_bubble,             // 34
+
+    // Portals
+    rr_mob_id_portal_garden,      // 35
+    rr_mob_id_portal_ocean,       // 36
+    rr_mob_id_portal_hell_creek,  // 37
+
+    rr_mob_id_whirlpool,          // 39
+    rr_mob_id_max,
 };
 
 struct rr_petal_base_stat_scale
@@ -177,9 +209,11 @@ struct rr_mob_data
     uint8_t id;
     uint8_t min_rarity;
     uint8_t max_rarity;
+    char const *name;
     float health;
     float damage;
     float radius;
+    float danger;
     struct rr_loot_data loot[4];
 };
 
@@ -188,6 +222,7 @@ struct rr_petal_data
     uint8_t id;
     uint8_t min_rarity; // minimum rarity petal can spawn at
     struct rr_petal_base_stat_scale const *scale;
+    char const *name;
     float damage;
     float health;
     float clump_radius;
@@ -212,17 +247,17 @@ struct rr_mob_rarity_scale
 };
 
 extern struct rr_petal_data RR_PETAL_DATA[rr_petal_id_max];
-extern char const *RR_PETAL_NAMES[rr_petal_id_max];
+// extern char const *RR_PETAL_NAMES[rr_petal_id_max];
 extern char const *RR_PETAL_DESCRIPTIONS[rr_petal_id_max];
 extern struct rr_mob_data RR_MOB_DATA[rr_mob_id_max];
-extern char const *RR_MOB_NAMES[rr_mob_id_max];
+// extern char const *RR_MOB_NAMES[rr_mob_id_max];
 extern struct rr_mob_rarity_scale RR_MOB_RARITY_SCALING[rr_rarity_id_max];
 extern struct rr_petal_rarity_scale RR_PETAL_RARITY_SCALE[rr_rarity_id_max];
 extern double RR_MOB_LOOT_RARITY_COEFFICIENTS[rr_rarity_id_max];
 extern double RR_DROP_RARITY_COEFFICIENTS[rr_rarity_id_exotic + 2];
 extern double RR_MOB_WAVE_RARITY_COEFFICIENTS[rr_rarity_id_max + 1];
 
-extern uint32_t RR_MOB_DIFFICULTY_COEFFICIENTS[rr_mob_id_max];
+// extern uint32_t RR_MOB_DIFFICULTY_COEFFICIENTS[rr_mob_id_max];
 extern double RR_HELL_CREEK_MOB_ID_RARITY_COEFFICIENTS[rr_mob_id_max];
 extern double RR_GARDEN_MOB_ID_RARITY_COEFFICIENTS[rr_mob_id_max];
 
