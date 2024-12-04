@@ -3,6 +3,7 @@ frontend_release_build/
 node_modules/
 .vs/
 emsdk/
+MasterServer/users.json
 
 database.json
 logs.txt
