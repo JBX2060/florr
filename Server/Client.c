@@ -185,8 +185,7 @@ void rr_server_client_craft_petal(struct rr_server_client *this,
     double xp_gain = 0;
     while (now >= 5)
     {
-        if (id == rr_petal_id_basic ||
-            rr_frand() < base * (++this->craft_fails[id][rarity]))
+        if (rr_frand() < base * (++this->craft_fails[id][rarity]))
         {
             ++success;
             this->craft_fails[id][rarity] = 0;
