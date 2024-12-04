@@ -10,7 +10,7 @@ const test = async () => {
     const users_collection = db.collection("users");
 
     const query = {
-        username: "1747d712-4f4e-471c-a887-106311f1e0f1",
+        username: "523fa9e8-2589-46c6-ad29-1e13fb7259ab",
     };
     const user = await users_collection.findOne(query);
     console.log(user);
