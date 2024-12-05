@@ -60,31 +60,41 @@ static void set_special_zone(uint8_t biome, uint8_t (*fun)(), uint32_t x,
 
 #define ALL_MOBS 255
 #define DIFFICULT_MOBS 254
-
-uint8_t fern_zone() { return rr_mob_id_fern; }
-uint8_t pter_meteor_zone()
-{
-    return rr_frand() > 0.02 ? rr_mob_id_pteranodon : rr_mob_id_meteor;
-}
 uint8_t ornith_pachy_zone()
 {
     return rr_frand() > 0.5 ? rr_mob_id_ornithomimus : rr_mob_id_pachycephalosaurus;
+}
+uint8_t fern_zone() { return rr_mob_id_fern; }
+uint8_t edmo_zone() { return rr_mob_id_edmontosaurus; }
+uint8_t quetz_trex_zone()
+{
+    return rr_frand() > 0.5 ? rr_mob_id_quetzalcoatlus : rr_mob_id_trex;
 }
 uint8_t trice_dako_zone()
 {
     return rr_frand() > 0.2 ? rr_mob_id_dakotaraptor : rr_mob_id_triceratops;
 }
+uint8_t pter_meteor_zone()
+{
+    return rr_frand() > 0.02 ? rr_mob_id_pteranodon : rr_mob_id_meteor;
+}
+uint8_t edmo_dako_zone()
+{
+    return rr_frand() > 0.33 ? rr_mob_id_dakotaraptor : rr_mob_id_edmontosaurus;
+}
+uint8_t trex_dako_pter_zone()
+{
+    return rr_frand() > 0.6   ? rr_mob_id_trex
+           : rr_frand() > 0.5 ? rr_mob_id_dakotaraptor
+                              : rr_mob_id_pteranodon;
+}
+uint8_t dako_pter_zone()
+{
+    return rr_frand() > 0.5 ? rr_mob_id_dakotaraptor : rr_mob_id_pteranodon;
+}
 uint8_t anky_trex_zone()
 {
     return rr_frand() > 0.2 ? rr_mob_id_ankylosaurus : rr_mob_id_trex;
-}
-uint8_t edmo_zone() { return rr_mob_id_edmontosaurus; }
-// ~x5 tree chance
-uint8_t tree_zone() {
-    return rr_frand() > 0.0025 ? DIFFICULT_MOBS : rr_mob_id_tree;
-}
-uint8_t pter_zone() {
-    return rr_frand() > 0.2 ? rr_mob_id_pteranodon : ALL_MOBS;
 }
 
 struct zone
@@ -96,27 +106,62 @@ struct zone
     uint8_t (*spawn_func)();
 };
 
-#define ZONE_POSITION_COUNT 9
+#define ZONE_POSITION_COUNT 10
+#define ROT_COUNT 5
+#define PERMA_ZONE_POSITION_COUNT 3
 
 static struct zone zone_positions[ZONE_POSITION_COUNT] = {
-    {4,  0,  7,  3, fern_zone},
-    {16, 3,  5,  4, pter_meteor_zone},
-    {17, 8,  3,  2, ornith_pachy_zone},
-    {26, 11, 3,  3, trice_dako_zone},
-    {10, 22, 4,  3, anky_trex_zone},
-    {23, 22, 4,  3, edmo_zone},
-    {16, 25, 5,  2, tree_zone},
-    {13, 27, 11, 4, tree_zone},
-    {2,  13, 6, 17, pter_zone},
+    {11, 29, 3, 2, edmo_zone},           {4,  25, 3, 2, quetz_trex_zone},
+    {34, 21, 3, 2, trice_dako_zone},     {38, 21, 5, 1, pter_meteor_zone},
+    {26, 31, 4, 2, edmo_dako_zone},      {13, 8,  2, 3, pter_meteor_zone},
+    {28, 24, 2, 3, trex_dako_pter_zone}, {0,  11, 5, 1, dako_pter_zone},
+    {21, 23, 3, 2, edmo_zone},           {7,  33, 3, 2, trice_dako_zone},
+};
+
+static struct zone perma_zone_positions[PERMA_ZONE_POSITION_COUNT] = {
+    {2,  9,  2, 2, ornith_pachy_zone},   {8,  22, 2, 2, fern_zone},
+    {10, 10, 2, 1, anky_trex_zone},
 };
 
 static void set_spawn_zones()
 {
+    puts("refreshing spawn zones");
+    struct timeval t;
+    gettimeofday(&t, NULL);
+    int64_t time = (t.tv_sec * 1000000 + t.tv_usec) / (1000 * 1000 * 60 * 30);
+
+    uint64_t seed = rr_get_hash(time);
+
+    for (uint64_t i = 0; i < PERMA_ZONE_POSITION_COUNT; i++)
+    {
+        struct zone zone = perma_zone_positions[i];
+        set_special_zone(rr_biome_id_hell_creek, zone.spawn_func, zone.x, zone.y,
+                         zone.w, zone.h);
+    }
+
     for (uint64_t i = 0; i < ZONE_POSITION_COUNT; i++)
     {
         struct zone zone = zone_positions[i];
-        set_special_zone(rr_biome_id_hell_creek, zone.spawn_func, zone.x, zone.y,
-                         zone.w, zone.h);
+        set_special_zone(rr_biome_id_hell_creek, NULL, zone.x, zone.y, zone.w,
+                         zone.h);
+    }
+
+    // shuffle positions
+    for (uint64_t i = ZONE_POSITION_COUNT - 1; i > 0; i--)
+    {
+        uint64_t j = seed % (i + 1);
+        struct zone tmp = zone_positions[i];
+        zone_positions[i] = zone_positions[j];
+        zone_positions[j] = tmp;
+        seed = rr_get_hash(seed);
+    }
+
+    for (uint64_t i = 0; i < ROT_COUNT; i++)
+    {
+        struct zone z = zone_positions[i];
+
+        set_special_zone(rr_biome_id_hell_creek, z.spawn_func, z.x, z.y, z.w,
+                         z.h);
     }
 }
 
