@@ -212,8 +212,8 @@ struct rr_mob_rarity_scale RR_MOB_RARITY_SCALING[rr_rarity_id_max] = {
 // clang-format on
 // Mixing up the colors so people don't even know :) I'll revert this soon
 uint32_t RR_RARITY_COLORS[rr_rarity_id_max] = {
-    0xff7eef6d, 0xffd1b654, 0xff7f4e9b, 0xffe85f2a,
-    0xff2c75ff, 0xffb93daf, 0xfff7a629, 0xff48c941};
+    0xff7eef6d, 0xffd1b654, 0xff7f4e9b, 0xff2c75ff,
+    0xffe85f2a, 0xffb93daf, 0xfff7a629, 0xff48c941};
 
 char const *RR_RARITY_NAMES[rr_rarity_id_max] = {
     "Common",    "Unusual", "Rare",   "Epic",
