@@ -585,7 +585,7 @@ RR_DEFINE_MAZE(BURROW, 4) = {{1, 1}, {0, 1}};
         &RR_MAZE_##MAZE[0][0]
 
 struct rr_maze_declaration RR_MAZES[rr_biome_id_max] = {
-    {MAZE_ENTRY(HELL_CREEK, 1024), 5, {
+    {MAZE_ENTRY(HELL_CREEK, 1024), 6, {
         //x,y,w,h,spawn_x,spawn_y,min_level
         {0,   0,  3, 3, 6,  13, 1},  // 0
         {14, 17,  3, 3, 11, 15, 20}, // 1
@@ -594,6 +594,8 @@ struct rr_maze_declaration RR_MAZES[rr_biome_id_max] = {
 
         {32, 38, 3, 3, 29, 38, 80}, // 4
         {37, 29, 5, 2, 37, 33, 80}, // 5
+        {11, 38, 3, 2, 39, 16, 80}, // 6
+        {37, 4,  5, 2, 37,  6, 80}, // 7
     }},
     {MAZE_ENTRY(HELL_CREEK, 1024), 0},
     {MAZE_ENTRY(BURROW, 512), 0},

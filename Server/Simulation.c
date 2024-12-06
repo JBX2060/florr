@@ -319,6 +319,8 @@ static void despawn_mob(EntityIdx entity, void *_simulation)
     struct rr_component_arena *arena = rr_simulation_get_arena(this, 1);
     struct rr_component_mob *mob = rr_simulation_get_mob(this, entity);
     struct rr_component_ai *ai = rr_simulation_get_ai(this, entity);
+    if (mob->rarity == rr_rarity_id_ultimate)
+        return;
     if (mob->player_spawned)
         return;
     if (rr_component_arena_get_grid(
@@ -353,7 +355,7 @@ static void despawn_mob(EntityIdx entity, void *_simulation)
 static float get_max_points(struct rr_simulation *this,
                             struct rr_maze_grid *grid)
 {
-    float coeff = rr_simulation_get_arena(this, 1)->pvp ? 0.2 : 2;
+    float coeff = rr_simulation_get_arena(this, 1)->pvp ? 0.2 : 1.5;
     return coeff * (0.2 + (grid->player_count) * 1.2) *
            powf(1.1, grid->overload_factor);
 }
